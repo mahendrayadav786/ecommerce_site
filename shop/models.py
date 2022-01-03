@@ -9,7 +9,7 @@ class product(models.Model):
     subcategory = models.CharField(max_length= 50, default ="")
     desc = models.CharField(max_length = 60)
     pub_date =models.DateField
-    img = models.ImageField(upload_to ="shop/images", default="")
+    image = models.ImageField(upload_to ="shop/images", default="")
 
     def __str__(self):
         return self.product_name
