@@ -1,0 +1,17 @@
+[33mcommit 45e93d9c16eef97ff91acc3f6ce39df907a5d64e[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Mahendra Yadav <mahendrayadav7571@gmail.com>
+Date:   Mon Jan 3 18:29:02 2022 +0530
+
+    Learned aboutfetching objects from database
+
+[33mcommit 22e5f9a51acb4fbb03170ae3f9a8b3aee6114e4f[m
+Author: Mahendra Yadav <mahendrayadav7571@gmail.com>
+Date:   Sat Jan 1 12:21:21 2022 +0530
+
+    learn about templating, adding media,changing our model
+
+[33mcommit 8fc9ff1dfa9c208ddd30d10911594330758e17ae[m
+Author: Mahendra Yadav <mahendrayadav7571@gmail.com>
+Date:   Fri Dec 31 17:39:58 2021 +0530
+
+    learned about admin
