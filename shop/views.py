@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import product
+from .models import product, contact
 from math import ceil
-# Create your views here.
+
 def index(request):
 
 
@@ -25,7 +25,13 @@ def about(request):
         return render(request, "shop/about.html")
 
 def contactus(request):
-
+        if request.method == "POST":
+                user_name = request.POST.get("user_name", "")
+                email = request.POST.get("email", "")
+                phone = request.POST.get("phone", "")
+                desc = request.POST.get("desc", "")
+                contactus =contact(name=user_name, phone = phone, desc = desc, email = email)
+                contactus.save()
         return render(request, "shop/contactus.html")
 
 def tracker(request):

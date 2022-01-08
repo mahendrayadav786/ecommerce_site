@@ -13,3 +13,18 @@ class product(models.Model):
 
     def __str__(self):
         return self.product_name
+
+
+class contact(models.Model):
+        mesg_id = models.AutoField
+        name = models.CharField(max_length=50)
+        email = models.CharField(max_length=50)
+        phone = models.IntegerField()
+        desc = models.CharField(max_length=60)
+
+        def __str__(self):
+            return self.name
+
+
+
+
