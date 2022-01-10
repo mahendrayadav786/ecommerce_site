@@ -71,8 +71,10 @@
             <div class="card-body">
               <h5 class="card-title">{{i.product_name}}</h5>
               <p class="card-text">{{i.desc}}</p>
+                <span id  ="divpr{{ i.id }}" class = "divpr">
               <button id="pr{{i.id}}" class="btn btn-primary cart">Add To Cart</button>
-            <a href = "/shop/products/{{i.id}}"><button id="qv{{i.id}}" class="btn btn-primary cart mx-2">QuickView</button></a>
+            </span>
+                    <a href = "/shop/products/{{i.id}}"><button id="qv{{i.id}}" class="btn btn-primary cart mx-2">QuickView</button></a>
             </div>
           </div>
         </div>
@@ -101,7 +103,8 @@
 
 {% block js %}
 <script>
-console.log('working');
+
+// Find out the cart from the localstorage
 if(localStorage.getItem('cart') == null){
 var cart = {};
 }
@@ -109,9 +112,13 @@ else
 {
 cart = JSON.parse(localStorage.getItem('cart'));
 document.getElementById('cart').innerHTML = Object.keys(cart).length;
+updateCart(cart);
 }
+
+
+// if add to cart button is clicked then increment cart item
 $('.cart').click(function(){
-console.log('clicked');
+
 var idstr = this.id.toString();
 console.log(idstr);
 if (cart[idstr] !=undefined){
@@ -122,12 +129,44 @@ else
 cart[idstr] = 1;
 
 }
-console.log(cart);
+
+updateCart(cart);
 localStorage.setItem('cart', JSON.stringify(cart));
 });
 
+//Add popover to cart
 $('#popcart').popover();
 document.getElementById("popcart").setAttribute('data-content', '<h5>Cart for your items in my shopping cart</h5>');
+
+
+function updateCart(cart){
+     for (var item in cart){
+
+       document.getElementById('div' + item).innerHTML = "<button id='minus" + item + "' class='btn btn-primary minus'>-</button> <span id='val" + item + "''>" + cart[item] + "</span> <button id='plus" + item + "' class='btn btn-primary plus'> + </button>";
+    }
+cart = JSON.parse(localStorage.getItem('cart'));
+document.getElementById('cart').innerHTML = Object.keys(cart).length;
+console.log(cart);
+}
+
+// if the plus and minus button is clicked then increament and decreament the value
+
+$(".divpr").on("click", "button.minus", function(){
+a = this.id.slice(5, );
+console.log(a);
+ cart[a] = cart[a] -1;
+ cart[a] = Math.max(0, cart[a])
+document.getElementById("val" +a).innerHTML= cart[a];
+updateCart(cart);
+});
+
+$(".divpr").on("click", "button.plus", function(){
+a = this.id.slice(4, );
+console.log(a);
+cart[a] = cart[a] +1;
+document.getElementById("val" +a).innerHTML = cart[a];
+updateCart(cart);
+});
 
 </script>
 {% endblock %}

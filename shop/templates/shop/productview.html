@@ -28,7 +28,7 @@
 
 {% block js %}
 <script>
-console.log('working');
+
 if(localStorage.getItem('cart') == null){
 var cart = {};
 }
@@ -55,6 +55,7 @@ localStorage.setItem('cart', JSON.stringify(cart));
 
 $('#popcart').popover();
 document.getElementById("popcart").setAttribute('data-content', '<h5>Cart for your items in my shopping cart</h5>');
+
 
 </script>
 
