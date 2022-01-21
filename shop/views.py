@@ -4,6 +4,14 @@ from .models import product, contact, Order, UpdateOrder
 from math import ceil
 import json
 import datetime
+import os
+from twilio.rest import Client
+
+
+
+
+
+
 def index(request):
 
 
@@ -61,6 +69,7 @@ def tracker(request):
     return render(request, "shop/tracker.html")
 
 def checkout(request):
+
         if request.method == "POST":
                  item_json = request.POST.get("item_json", "")
                  name = request.POST.get("name", "")
@@ -81,6 +90,21 @@ def checkout(request):
                  order = UpdateOrder(order_id = order.order_id, update_desc = "You order has been placed", timestamp= x.strftime("%b"+" "+"%d"+", "+"%Y"+" "+"%H"+":"+"%M"))
 
                  order.save()
+                 print(order.update_desc)
+                 print(order.timestamp)
+                 account_sid = "ACc0c53d59bd69760f9614e9ca48c64238"
+                 auth_token = "c8c7537fde9b4319883e1ce0222be15b"
+
+                 client = Client(account_sid, auth_token)
+
+                 message = client.messages \
+                     .create(
+                     body=f"Your order has been placed. Thank you for shopping with us!\n\nYou can track your order with this order is:{order.order_id}\n\nRegards Mycart",
+                     from_="+16072702558",
+                     to='+918437448151'
+                 )
+
+
 
                  id = order.order_id
                  thank = True
