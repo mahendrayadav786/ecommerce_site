@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .models import product, contact, Order
+from .models import product, contact, Order, UpdateOrder
 from math import ceil
-
+import json
+import datetime
 def index(request):
 
 
@@ -17,6 +18,7 @@ def index(request):
 
                 all_prod.append([prods, range(1, nSlides), nSlides])
         param = {"all_products": all_prod}
+
         return render(request, "shop/index.html", param)
 
 
@@ -35,7 +37,28 @@ def contactus(request):
         return render(request, "shop/contactus.html")
 
 def tracker(request):
-        return render(request, "shop/tracker.html")
+    if request.method == "POST":
+        orderId = request.POST.get('orderId', "")
+        email = request.POST.get('email', "")
+        try:
+            order =Order.objects.filter(order_id=orderId, email=email)
+            if len(order) > 0:
+                update =UpdateOrder.objects.filter(order_id=orderId)
+                updates = []
+                for item in update:
+
+                    updates.append({'text': item.update_desc, 'time': item.timestamp})
+                    response = json.dumps(updates, default=str)
+
+                return HttpResponse(response)
+            else:
+                return HttpResponse('{}')
+        except Exception as e:
+             return HttpResponse('{}')
+
+        return render(request, 'shop/tracker.html')
+
+    return render(request, "shop/tracker.html")
 
 def checkout(request):
         if request.method == "POST":
@@ -53,6 +76,12 @@ def checkout(request):
 
                  order = Order(item_json= item_json, name=name, phone=phone, city=city, email=email, state = state, zip_code = zip_code, address= address)
                  order.save()
+                 x =datetime.datetime.now()
+
+                 order = UpdateOrder(order_id = order.order_id, update_desc = "You order has been placed", timestamp= x.strftime("%b"+" "+"%d"+", "+"%Y"+" "+"%H"+":"+"%M"))
+
+                 order.save()
+
                  id = order.order_id
                  thank = True
 

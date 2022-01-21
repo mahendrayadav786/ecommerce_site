@@ -59,7 +59,7 @@ ROOT_URLCONF = 'ecs.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ["ecs/templates"],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

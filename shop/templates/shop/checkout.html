@@ -1,5 +1,15 @@
 {% extends 'shop/base.html' %}
 {% block title%} Checkout - My Awesome Cart{% endblock %}
+{% block css %}
+<style>
+body {
+background-color: #CCD1E4;
+}
+</style>
+{% endblock %}
+
+
+
 {% block body %}
 <div class="container">
     <div class="col my-4">
@@ -9,6 +19,13 @@
 
 
             </ul>
+  <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mt-3">
+                    <li class="breadcrumb-item active" aria-current="page">Your Cart Total Is <b>Rs.<span id="totalPrice"></b>  </span>Enter your details below & place your order. Thanks for using My Awesome Cart!</li>
+                </ol>
+            </nav>
+
+
         </div>
     </div>
     <div class="col my-4">
@@ -18,7 +35,7 @@
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="inputname">Name</label>
-                    <input type="tetx" class="form-control" id="name"  name = "name" placeholder="Name">
+                    <input type="text" class="form-control" id="name"  name = "name" placeholder="Name">
                 </div>
                 <div class="form-group col-md-6">
                     <label for="inputEmail4">Email</label>
@@ -62,6 +79,7 @@
 <script>
 
 var sum =0;
+var total_price = 0;
     if (localStorage.getItem("cart") == null){
     var cart = {};
 
@@ -82,8 +100,11 @@ else{
 for(item in cart){
    let qty = cart[item][0];
    let name = cart[item][1];
-
+   let item_price = cart[item][2];
    sum = sum + qty;
+   total_price = total_price + (qty*item_price);
+
+
    mystr = ` <li class="list-group-item d-flex justify-content-between align-items-center">
                     ${name}
                     <span class="badge badge-primary badge-pill">${qty}</span>
@@ -94,10 +115,9 @@ for(item in cart){
 }
 document.getElementById('cart').innerHTML = sum;
 
+document.getElementById("totalPrice").innerHTML =total_price ;
 $("#item_json").val(JSON.stringify(cart));
 {% if thank %}
-
-alert("Thank you for shopping with us.You can track your order with the id: {{ id }}.")
 localStorage.clear();
 document.location = "/shop/thank{{id}}";
 {% endif %}
