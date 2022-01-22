@@ -40,10 +40,24 @@ background-color: "#CCD1E4";
 
   </div>
 
-
-
 </form>
-
 </div>
 {% endblock %}
 
+
+
+
+
+
+{% block js %}
+
+<script>
+{% if thank %}
+
+    alert("Thank you for contacting with us we will reach to you soon!");
+    documnet.location = "shop/contactus"
+
+    {% endif %}
+</script>
+
+{% endblock %}

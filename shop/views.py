@@ -4,16 +4,8 @@ from .models import product, contact, Order, UpdateOrder
 from math import ceil
 import json
 import datetime
-import os
-from twilio.rest import Client
-
-
-
-
-
 
 def index(request):
-
 
         all_prod=[]
         catpods = product.objects.values("category", "id")
@@ -29,20 +21,22 @@ def index(request):
 
         return render(request, "shop/index.html", param)
 
-
 def about(request):
 
         return render(request, "shop/about.html")
 
 def contactus(request):
+        thank = False
         if request.method == "POST":
                 user_name = request.POST.get("user_name", "")
                 email = request.POST.get("email", "")
-                phone = request.POST.get("phone", "")
+                phone = request.POST.get("phone",)
                 desc = request.POST.get("desc", "")
                 contactus =contact(name=user_name, phone = phone, desc = desc, email = email)
                 contactus.save()
-        return render(request, "shop/contactus.html")
+                thank = True
+
+        return render(request, "shop/contactus.html", {"thank": thank})
 
 def tracker(request):
     if request.method == "POST":
@@ -80,45 +74,22 @@ def checkout(request):
                  zip_code = request.POST.get("zip_code", "")
                  address = request.POST.get("address1", "") + " " + request.POST.get("address2", "")
 
-
-
-
                  order = Order(item_json= item_json, name=name, phone=phone, city=city, email=email, state = state, zip_code = zip_code, address= address)
                  order.save()
                  x =datetime.datetime.now()
-
                  order = UpdateOrder(order_id = order.order_id, update_desc = "You order has been placed", timestamp= x.strftime("%b"+" "+"%d"+", "+"%Y"+" "+"%H"+":"+"%M"))
-
                  order.save()
-                 print(order.update_desc)
-                 print(order.timestamp)
-                 account_sid = "ACc0c53d59bd69760f9614e9ca48c64238"
-                 auth_token = "c8c7537fde9b4319883e1ce0222be15b"
-
-                 client = Client(account_sid, auth_token)
-
-                 message = client.messages \
-                     .create(
-                     body=f"Your order has been placed. Thank you for shopping with us!\n\nYou can track your order with this order is:{order.order_id}\n\nRegards Mycart",
-                     from_="+16072702558",
-                     to='+918437448151'
-                 )
-
-
-
                  id = order.order_id
                  thank = True
 
                  return render(request, "shop/checkout.html", {"thank":thank, "id": id})
-
-
 
         return render(request, "shop/checkout.html")
 
 def products(request, my_id):
 
         products = product.objects.filter(id = my_id)
-        print(products)
+
         return render(request, "shop/productview.html", {"product": products[0]})
 
 def search(request):
