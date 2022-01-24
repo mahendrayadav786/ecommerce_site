@@ -4,13 +4,15 @@ from . models import Blogpost
 # Create your views here.
 def index(request):
 
-    posts = Blogpost.objects.all()
-    all_post = []
-    for post in posts:
-        all_post.append(post)
+    all_post = Blogpost.objects.all()
+
+
 
     return render(request, "blog/index.html", {"all_post": all_post})
 
 
-def blogpost(request):
-    return render(request, "blog/blogpost.html")
+def blogpost(request, id):
+    post = Blogpost.objects.filter(post_id =id)[0]
+    print(post)
+
+    return render(request, "blog/blogpost.html", {"post": post})

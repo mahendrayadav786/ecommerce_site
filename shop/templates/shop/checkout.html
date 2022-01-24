@@ -32,6 +32,7 @@ background-color: #CCD1E4;
         <h2>Step 2 - Enter Address & Other Details:</h2>
         <form method = "post" action = "/shop/checkout/">{% csrf_token %}
             <input type = "hidden" name = "item_json" id = "item_json">
+             <input type = "hidden" name = "amount" id = "amount">
             <div class="form-row">
                 <div class="form-group col-md-6">
                     <label for="inputname">Name</label>
@@ -117,10 +118,13 @@ document.getElementById('cart').innerHTML = sum;
 
 document.getElementById("totalPrice").innerHTML =total_price ;
 $("#item_json").val(JSON.stringify(cart));
+
 {% if thank %}
 localStorage.clear();
 document.location = "/shop/thank{{id}}";
 {% endif %}
+
+$("#amount").val($("#totalPrice").html());
 
 
 </script>
