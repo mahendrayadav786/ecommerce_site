@@ -1,12 +1,19 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from paytmchecksum import PaytmChecksum
+import requests
+import json
 from .models import product, contact, Order, UpdateOrder
 from math import ceil
 import json
 import datetime
 from django.views.decorators.csrf import csrf_exempt
 from paytm import Checksum
-MERCHANT_KEY = "kbzk1DSbJiV-03p5"
+MERCHANT_KEY = "6PiKpXfE&sBHw3rN"
+MERCHANT_ID = "AVjbPn81825059245113"
+import paytmchecksum
+
+
 def index(request):
 
         all_prod=[]
@@ -22,6 +29,44 @@ def index(request):
         param = {"all_products": all_prod}
 
         return render(request, "shop/index.html", param)
+def searchMatch(query, item):
+
+       if query in item.desc.lower() or query in item.product_name.lower() or query in item.category:
+           return True
+       else:
+           return False
+
+
+
+
+def search(request):
+    query = request.GET.get("search")
+    all_prod = []
+    catpods = product.objects.values("category", "id")
+    cats = {item["category"] for item in catpods}
+
+    for cat in cats:
+        prodstemp = product.objects.filter(category=cat)
+        prods = [item for item in prodstemp if searchMatch(query, item)]
+
+        n = len(prods)
+        nSlides = (n // 4) + ceil((n / 4) - (n // 4))
+        if (len(prods)!=0):
+             all_prod.append([prods, range(1, nSlides), nSlides])
+
+    param = {"all_products": all_prod, "msg": ""}
+    if len(all_prod) == 0 or len(query) < 4:
+        param = {"msg": "Pleasea make a relevant search"}
+    return render(request, "shop/search.html", param)
+
+
+
+
+
+
+
+
+
 
 def about(request):
 
@@ -88,23 +133,38 @@ def checkout(request):
 
                  # return render(request, "shop/checkout.html", {"thank":thank, "id": id})
               ##request paytm to tak emoney from the user and send it to your account
-                 param_dict = {
+                 paytmParams = dict()
 
-                     'MID': 'WorldP64425807474247',
-                     'ORDER_ID': str(order.order_id),
-                     'TXN_AMOUNT': str(amount),
-                     'CUST_ID': email,
-                     'INDUSTRY_TYPE_ID': 'Retail',
-                     'WEBSITE': 'WEBSTAGING',
-                     'CHANNEL_ID': 'WEB',
-                     'CALLBACK_URL': 'http://127.0.0.1:8000/shop/handlerequest/',
-
+                 paytmParams["body"] = {
+                     "requestType"   :   "Payment",
+                     "mid"           :    MERCHANT_ID,
+                     "websiteName"  :  "WEBSTAGING",
+                     "orderId"        :   str(order.order_id),
+                     "callbackUrl"    :  "http://127.0.0.1:8000/shop/handlerequest/",
+                     "txnAmount"    :   {
+                                  "value": str(amount),
+                                  "currency": "INR",
+                     },
+                     "userInfo"        : {
+                          "custId": "CUST_001",
+                     },
+                 }
+                 checksum = PaytmChecksum.generateSignature(json.dumps(paytmParams["body"]), MERCHANT_KEY)
+                 paytmParams["head"] = {
+                     "signature": checksum
+                 }
+                 post_data = json.dumps(paytmParams)
+                 url = f"https://securegw-stage.paytm.in/theia/api/v1/initiateTransaction?mid=AVjbPn81825059245113&orderId={str(order.order_id)}"
+                 response = requests.post(url, data=post_data, headers={"Content-type": "application/json"}).json()
+                 print(response)
+                 form_data = {
+                      "mid": MERCHANT_ID,
+                     "txnToken": response["body"]["txnToken"],
+                     "order_id": paytmParams["body"]["orderId"]
                  }
 
-                 param_dict["CHECKSUMHASH"] = Checksum.generate_checksum(param_dict, MERCHANT_KEY)
-                 return render(request, "shop/paytm.html", {"param_dict": param_dict})
-        return render(request, "shop/checkout.html")
-
+                 return render(request, 'shop/CheckoutJS.html', {"data": form_data})
+        return render(request, 'shop/checkout.html')
 
 def products(request, my_id):
 
@@ -112,23 +172,39 @@ def products(request, my_id):
 
         return render(request, "shop/productview.html", {"product": products[0]})
 
-def search(request):
 
-    return HttpResponse("search us page")
 
 def thank(request,id):
 
     return render(request, "shop/thank.html",{"id": id})
 
 
+
 @csrf_exempt
 def handlerequest(request):
-    ##Paytm will send a post request here
-   pass
 
 
+    # Create a Dictionary from the parameters received in POST
+    # received_data should contains all data received in POST
+        paytmParam= {}
 
+        received_data = request.POST
+        print(received_data)
+        for key, value in received_data.items():
+            if key == 'CHECKSUMHASH':
+                   paytmChecksum = value
+            else:
+                    paytmParam[key] = value
 
+    # Verify checksum
+    # Find your Merchant Key in your Paytm Dashboard at https://dashboard.paytm.com/next/apikeys
+        isValidChecksum = Checksum.verify_checksum(paytmParam, MERCHANT_KEY, paytmChecksum)
+        if isValidChecksum:
+             print("Checksum Matched")
+        else:
+              print("Checksum Mismatched")
+
+        return render(request, 'shop/paymentstatus.html', {'response': paytmParam})
 
 
 
